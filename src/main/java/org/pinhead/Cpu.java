@@ -20,7 +20,12 @@ public class Cpu {
     private boolean running = false;
     private boolean ready = false;
 
-    private Random rng = new Random();
+    private final Random rng = new Random();
+
+    public Cpu(int[] data) {
+        this();
+        memory.loadImage(data);
+    }
 
     public Cpu() {
         this.memory = new Memory();
@@ -41,7 +46,25 @@ public class Cpu {
         return ready;
     }
 
-    public void run() {
+    public int getPC() {
+        return PC;
+    }
+
+    public void start() {
+        running = true;
+        logger.info("Cpu starts running");
+
+        while (running)
+            run();
+
+        logger.info("Cpu stopped running");
+    }
+
+    public void singleStep() {
+        run();
+    }
+
+    private void run() {
         state = memory.fetchAndDecode(PC);
 
         switch (state.opcode) {
@@ -74,6 +97,10 @@ public class Cpu {
 
             case NONE       -> {
                 logger.severe("Unimplemented opcode!");
+                running = false;
+            }
+            default         -> {
+                logger.severe("Uninterpreted opcode!");
                 running = false;
             }
         }

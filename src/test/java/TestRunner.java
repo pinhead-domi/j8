@@ -13,4 +13,13 @@ public class TestRunner {
         assertFalse(cpu.isRunning());
     }
 
+    @Test
+    public void jmp_imm() {
+        int[] data = {0x12, 0x34};
+        Cpu cpu = new Cpu(data);
+
+        cpu.singleStep();
+        assertEquals(cpu.getPC(), 0x234);
+    }
+
 }

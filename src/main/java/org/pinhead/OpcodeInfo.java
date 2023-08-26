@@ -17,4 +17,17 @@ public class OpcodeInfo {
         this.y = y;
         this.kk = kk;
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%s]: addr: [%x], nibble: [%x], x: [%x], y[%x], kk: [%x]",
+                opcode.name(),
+                address,
+                nibble,
+                x,
+                y,
+                kk
+        );
+    }
+
 }

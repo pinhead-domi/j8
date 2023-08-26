@@ -1,5 +1,6 @@
 package org.pinhead;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class Memory {
@@ -42,8 +43,23 @@ public class Memory {
         return stack[SP--];
     }
 
+    public void loadImage(int[] binary) {
+        if(binary.length > 4096)
+            throw new RuntimeException("Binary exceeds maximum rom size");
+
+        logger.info("Loading data from array");
+
+        int index = 0;
+        for(int data: binary)
+            ram[index++] = data & 0xFF;
+
+        logger.info("Finished loading array data");
+    }
+
     public OpcodeInfo fetchAndDecode(int offset) {
         int instruction = ram[offset] << 8 | ram[offset+1];
+        logger.info(String.format("Fetched instruction: %x", instruction));
+
         OpcodeInfo info = new OpcodeInfo(
                 Opcode.NONE,
                 instruction & 0x0FFF,
@@ -53,12 +69,11 @@ public class Memory {
                 instruction & 0x00FF
         );
 
-        switch (instruction & 0xF000 >>> 12) {
+        switch (instruction >>> 12) {
             case 0 -> {
                 switch (info.kk) {
                     case 0x00 -> info.opcode = Opcode.CLS;
                     case 0xE0 -> info.opcode = Opcode.RET;
-                    default -> logger.warning("Invalid opcode!");
                 }
             }
             case 0x1            -> info.opcode = Opcode.JMP_IMM;
@@ -86,6 +101,11 @@ public class Memory {
             case 0xB            -> info.opcode = Opcode.JMP;
             case 0xC            -> info.opcode = Opcode.RND;
         }
+
+        if(info.opcode == Opcode.NONE)
+            logger.severe("Could not decode instruction");
+        else
+            logger.info("Decoded instruction: " + info);
 
         return info;
     }

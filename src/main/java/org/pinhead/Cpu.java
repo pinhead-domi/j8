@@ -18,6 +18,7 @@ public class Cpu {
     private OpcodeInfo state;
 
     private boolean running = false;
+    private boolean ready = false;
 
     private Random rng = new Random();
 
@@ -26,7 +27,18 @@ public class Cpu {
         this.screen = new Screen();
         this.keypad = new Keypad();
 
+        this.running = false;
+        this.ready = true;
+
         logger.info("Cpu finished initialization");
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 
     public void run() {
@@ -55,6 +67,10 @@ public class Cpu {
             case JMP        -> JMP();
             case RND        -> RND();
             case DRW        -> DRW();
+            case SKP        -> SKP();
+            case SKNP       -> SKNP();
+            case LD_DT      -> LD_DT();
+            case LD_K       -> LD_K();
 
             case NONE       -> {
                 logger.severe("Unimplemented opcode!");

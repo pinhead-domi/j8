@@ -8,6 +8,7 @@ public class Cpu {
     private final Memory memory;
     private final Screen screen;
     private final Keypad keypad;
+    private final Thread timerThread;
 
     private int PC;
     private int I;
@@ -35,6 +36,20 @@ public class Cpu {
         this.running = false;
         this.ready = true;
 
+        this.timerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(running) {
+                    updateTimers();
+                    try {
+                        Thread.sleep((int)((1.0/60.0)*1000.0));
+                    } catch (InterruptedException e) {
+                        running = false;
+                    }
+                }
+            }
+        });
+
         PC = 0x200;
 
         logger.info("Cpu finished initialization");
@@ -55,11 +70,12 @@ public class Cpu {
     public void start() {
         running = true;
         logger.info("Cpu starts running");
+        timerThread.start();
 
         while (running) {
             run();
             try {
-                Thread.sleep(100);
+                Thread.sleep(2);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -103,8 +119,12 @@ public class Cpu {
             case LD_DT      -> LD_DT();
             case LD_K       -> LD_K();
             case LD_F       -> LD_F();
-
+            case SET_DT     -> SET_DT();
+            case SET_ST     -> SET_ST();
             case ADD_I      -> ADD_I();
+            case BCD        -> BCD();
+            case STORE      -> STORE();
+            case LOAD       -> LOAD();
 
             case NONE       -> {
                 logger.severe("Unimplemented opcode!");
@@ -117,6 +137,13 @@ public class Cpu {
         }
 
         PC &= 0xFFFF;
+    }
+
+    private void updateTimers() {
+        if(DT > 0)
+            DT--;
+        if(ST > 0)
+            ST--;
     }
 
     private void RET() {
@@ -268,6 +295,44 @@ public class Cpu {
 
     private void LD_F() {
         I = V[state.x] * 5;
+        PC += 2;
+    }
+
+    private void SET_DT() {
+        DT = V[state.x];
+        PC += 2;
+    }
+
+    private void SET_ST() {
+        ST = V[state.x];
+        PC += 2;
+    }
+
+    private void BCD() {
+        int temp = V[state.x];
+
+        memory.storeByte(I, temp/100);
+        temp %= 100;
+
+        memory.storeByte(I+1, temp/10);
+        temp %= 10;
+
+        memory.storeByte(I+2, temp);
+
+        PC += 2;
+    }
+
+    private void STORE() {
+        for(int i=0; i<=V[state.x] && i<= 0xF; i++) {
+            memory.storeByte(I + i, V[i]);
+        }
+        PC += 2;
+    }
+
+    private void LOAD() {
+        for(int i=0; i<=V[state.x] && i<= 0xF; i++) {
+            V[i] = memory.loadByte(I + i);
+        }
         PC += 2;
     }
 

@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.logging.Logger;
 
 public class Screen {
@@ -23,6 +22,7 @@ public class Screen {
         listener = keys;
 
         frame = new JFrame("J-8");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel = new JPanel();
 
         frame.setSize(640, 320);

@@ -46,6 +46,10 @@ public class Memory {
         return SP;
     }
 
+    public int[] getStack() {
+        return stack.clone();
+    }
+
     public void loadBinary(String pathName) {
         logger.info("Reading binary file: " + pathName);
     }

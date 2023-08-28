@@ -85,6 +85,9 @@ public class Cpu {
         return PC;
     }
 
+    public int[] getStack() {
+        return memory.getStack();
+    }
     public void start() {
         running = true;
         logger.info("Cpu starts running");

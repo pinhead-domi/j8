@@ -1,5 +1,9 @@
 package org.pinhead;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -36,6 +40,10 @@ public class Memory {
             ram[index++] = data;
         }
         logger.info("Memory finished initialization");
+    }
+
+    public int getSP() {
+        return SP;
     }
 
     public void loadBinary(String pathName) {
@@ -79,6 +87,23 @@ public class Memory {
         logger.info("Finished loading array data");
     }
 
+    public void loadFromFile(String path) {
+        File file = new File(path);
+        try(FileInputStream stream = new FileInputStream(file)) {
+            int read = -1;
+            int num = 0;
+            while (num++ < (4096 - 512)) {
+                if((read = stream.read()) == -1)
+                    break;
+                ram[511 + num] = read;
+            }
+            logger.fine("Finished loading rom");
+        } catch (IOException e) {
+            logger.severe("Failed to read file!");
+            System.exit(-1);
+        }
+    }
+
     public OpcodeInfo fetchAndDecode(int offset) {
         int instruction = ram[offset] << 8 | ram[offset+1];
         logger.info(String.format("Fetched instruction: %x", instruction));
@@ -95,8 +120,8 @@ public class Memory {
         switch (instruction >>> 12) {
             case 0 -> {
                 switch (info.kk) {
-                    case 0x00 -> info.opcode = Opcode.CLS;
-                    case 0xE0 -> info.opcode = Opcode.RET;
+                    case 0xE0 -> info.opcode = Opcode.CLS;
+                    case 0xEE -> info.opcode = Opcode.RET;
                 }
             }
             case 0x1            -> info.opcode = Opcode.JMP_IMM;
@@ -124,12 +149,23 @@ public class Memory {
             case 0xB            -> info.opcode = Opcode.JMP;
             case 0xC            -> info.opcode = Opcode.RND;
             case 0xD            -> info.opcode = Opcode.DRW;
-
+            case 0xE -> {
+                switch (info.kk) {
+                    case 0x9E   -> info.opcode = Opcode.SKP;
+                    case 0xA1   -> info.opcode = Opcode.SKNP;
+                }
+            }
             case 0xF -> {
                 switch (info.kk) {
+                    case 0x07   -> info.opcode = Opcode.LD_DT;
                     case 0x0A   -> info.opcode = Opcode.LD_K;
+                    case 0x15   -> info.opcode = Opcode.SET_DT;
+                    case 0x18   -> info.opcode = Opcode.SET_ST;
                     case 0x1E   -> info.opcode = Opcode.ADD_I;
                     case 0x29   -> info.opcode = Opcode.LD_F;
+                    case 0x33   -> info.opcode = Opcode.BCD;
+                    case 0x55   -> info.opcode = Opcode.STORE;
+                    case 0x65   -> info.opcode = Opcode.LOAD;
                 }
             }
         }

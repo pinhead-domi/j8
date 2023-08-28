@@ -26,7 +26,7 @@ public class Main {
                         0xD1, 0x25, // DRW
 
         };
-        Cpu cpu = new Cpu(data);
+        Cpu cpu = new Cpu("/Users/dominik/Downloads/test_opcode.ch8");
         cpu.start();
     }
 }

@@ -28,10 +28,18 @@ public class Cpu {
         memory.loadImage(data);
     }
 
+    public Cpu(String path) {
+        this();
+        logger.info("Telling memory to load file");
+        memory.loadFromFile(path);
+    }
+
     public Cpu() {
         this.memory = new Memory();
         this.keypad = new Keypad();
+
         this.screen = new Screen(this.keypad);
+        this.screen.clear();
 
         this.running = false;
         this.ready = true;
@@ -53,6 +61,16 @@ public class Cpu {
         PC = 0x200;
 
         logger.info("Cpu finished initialization");
+    }
+
+    private void dumpCpuInfo() {
+        StringBuilder cpu = new StringBuilder();
+        cpu.append(String.format("PC: %x\tI: %x\tSP: %x\tDT: %x\tST: %x\n", PC, I, memory.getSP(), DT, ST));
+        cpu.append("V: ");
+        for(int i=0; i<16; i++) {
+            cpu.append(String.format("[%d]: %x,", i, V[i]));
+        }
+        logger.info("CPU info: \n" + cpu);
     }
 
     public boolean isRunning() {
@@ -92,6 +110,7 @@ public class Cpu {
         state = memory.fetchAndDecode(PC);
 
         switch (state.opcode) {
+            case CLS        -> CLS();
             case RET        -> RET();
             case JMP_IMM    -> JUMP_IMM();
             case CALL       -> CALL();
@@ -129,10 +148,12 @@ public class Cpu {
             case NONE       -> {
                 logger.severe("Unimplemented opcode!");
                 running = false;
+                dumpCpuInfo();
             }
             default         -> {
                 logger.severe("Uninterpreted opcode!");
                 running = false;
+                dumpCpuInfo();
             }
         }
 
@@ -144,6 +165,11 @@ public class Cpu {
             DT--;
         if(ST > 0)
             ST--;
+    }
+
+    private void CLS() {
+        screen.clear();
+        PC += 2;
     }
 
     private void RET() {

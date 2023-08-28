@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class Screen {
@@ -25,7 +26,7 @@ public class Screen {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel = new JPanel();
 
-        frame.setSize(640, 320);
+        frame.setSize(640, 340);
         frame.setLayout(new BorderLayout());
         frame.add(panel, BorderLayout.CENTER);
 
@@ -72,6 +73,11 @@ public class Screen {
 
         logger.info("Finished drawing sprite, " + (erased ? "erased" : "did not erase") + " bit");
         return erased;
+    }
+
+    public void clear() {
+        Arrays.fill(screenBuffer, false);
+        update();
     }
 
     public void update() {

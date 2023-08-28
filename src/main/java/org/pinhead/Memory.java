@@ -7,11 +7,34 @@ public class Memory {
 
     private static final Logger logger = Logger.getLogger(Memory.class.getName());
 
+    public static final int[] FONT = {
+            0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+            0x20, 0x60, 0x20, 0x20, 0x70, // 1
+            0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+            0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+            0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+            0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+            0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+            0xF0, 0x10, 0x20, 0x40, 0x50, // 7
+            0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+            0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+            0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+            0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+            0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+            0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+            0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+            0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
+
     private final int[] ram = new int[4096];
     public int[] stack = new int[16];
     private int SP = -1;
 
     public Memory() {
+        int index = 0;
+        for(int data: FONT) {
+            ram[index++] = data;
+        }
         logger.info("Memory finished initialization");
     }
 
@@ -44,12 +67,12 @@ public class Memory {
     }
 
     public void loadImage(int[] binary) {
-        if(binary.length > 4096)
+        if(binary.length > (4096 - 512))
             throw new RuntimeException("Binary exceeds maximum rom size");
 
         logger.info("Loading data from array");
 
-        int index = 0;
+        int index = 512;
         for(int data: binary)
             ram[index++] = data & 0xFF;
 
@@ -100,6 +123,15 @@ public class Memory {
             case 0xA            -> info.opcode = Opcode.LD_I;
             case 0xB            -> info.opcode = Opcode.JMP;
             case 0xC            -> info.opcode = Opcode.RND;
+            case 0xD            -> info.opcode = Opcode.DRW;
+
+            case 0xF -> {
+                switch (info.kk) {
+                    case 0x0A   -> info.opcode = Opcode.LD_K;
+                    case 0x1E   -> info.opcode = Opcode.ADD_I;
+                    case 0x29   -> info.opcode = Opcode.LD_F;
+                }
+            }
         }
 
         if(info.opcode == Opcode.NONE)

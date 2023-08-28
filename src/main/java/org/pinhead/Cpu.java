@@ -29,11 +29,13 @@ public class Cpu {
 
     public Cpu() {
         this.memory = new Memory();
-        this.screen = new Screen();
         this.keypad = new Keypad();
+        this.screen = new Screen(this.keypad);
 
         this.running = false;
         this.ready = true;
+
+        PC = 0x200;
 
         logger.info("Cpu finished initialization");
     }
@@ -54,8 +56,14 @@ public class Cpu {
         running = true;
         logger.info("Cpu starts running");
 
-        while (running)
+        while (running) {
             run();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         logger.info("Cpu stopped running");
     }
@@ -94,6 +102,9 @@ public class Cpu {
             case SKNP       -> SKNP();
             case LD_DT      -> LD_DT();
             case LD_K       -> LD_K();
+            case LD_F       -> LD_F();
+
+            case ADD_I      -> ADD_I();
 
             case NONE       -> {
                 logger.severe("Unimplemented opcode!");
@@ -104,6 +115,8 @@ public class Cpu {
                 running = false;
             }
         }
+
+        PC &= 0xFFFF;
     }
 
     private void RET() {
@@ -221,8 +234,9 @@ public class Cpu {
         boolean erased = false;
 
         for (int line=0; line<state.nibble; line++)
-            erased |= screen.drawByte(memory.loadByte(I + line), state.x, state.y + line);
+            erased |= screen.drawByte(memory.loadByte(I + line), V[state.x], V[state.y] + line);
 
+        screen.update();
         V[0xF] = erased ? 1 : 0;
         PC += 2;
     }
@@ -245,6 +259,16 @@ public class Cpu {
             V[state.x] = keypad.pressedKey().get();
             PC += 2;
         }
+    }
+
+    private void ADD_I() {
+        I += V[state.x];
+        PC += 2;
+    }
+
+    private void LD_F() {
+        I = V[state.x] * 5;
+        PC += 2;
     }
 
 }

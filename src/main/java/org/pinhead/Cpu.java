@@ -284,7 +284,7 @@ public class Cpu {
     }
 
     private void JMP() {
-        PC = state.address + V[0];
+        PC = (state.address + V[0]) & 0xFF;
     }
 
     private void RND() {

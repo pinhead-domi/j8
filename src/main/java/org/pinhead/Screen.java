@@ -26,14 +26,14 @@ public class Screen {
     public Screen(Keypad keys, boolean debug) {
 
         listener = keys;
-
-        frame = new JFrame("J-8");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        panel = new JPanel();
-
         this.debug = debug;
 
         if(!debug) {
+
+            frame = new JFrame("J-8");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            panel = new JPanel();
+
             frame.setSize(640, 340);
             frame.setLayout(new BorderLayout());
             frame.add(panel, BorderLayout.CENTER);

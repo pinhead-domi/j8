@@ -24,21 +24,25 @@ public class Cpu {
     private final Random rng = new Random();
 
     public Cpu(int[] data) {
-        this();
+        this(true);
         memory.loadImage(data);
     }
 
     public Cpu(String path) {
-        this();
+        this(true);
         logger.info("Telling memory to load file");
         memory.loadFromFile(path);
     }
 
     public Cpu() {
+        this(false);
+    }
+
+    public Cpu(boolean debug) {
         this.memory = new Memory();
         this.keypad = new Keypad();
 
-        this.screen = new Screen(this.keypad);
+        this.screen = new Screen(this.keypad, debug);
         this.screen.clear();
 
         this.running = false;
@@ -88,6 +92,7 @@ public class Cpu {
     public int[] getStack() {
         return memory.getStack();
     }
+    public int[] getV() { return V.clone(); }
     public void start() {
         running = true;
         logger.info("Cpu starts running");
@@ -207,6 +212,7 @@ public class Cpu {
 
     private void ADD_IMM() {
         V[state.x] += state.kk;
+        V[state.x] &= 0xFF;
         PC += 2;
     }
 

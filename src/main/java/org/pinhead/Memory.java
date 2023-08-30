@@ -142,9 +142,9 @@ public class Memory {
                     case 0x2    -> info.opcode = Opcode.AND;
                     case 0x3    -> info.opcode = Opcode.XOR;
                     case 0x4    -> info.opcode = Opcode.ADD_CARRY;
-                    case 0x5    -> info.opcode = Opcode.SUB_CARRY;
+                    case 0x5    -> info.opcode = Opcode.SUB_NCARRY;
                     case 0x6    -> info.opcode = Opcode.SHR;
-                    case 0x7    -> info.opcode = Opcode.SUB_NCARRY;
+                    case 0x7    -> info.opcode = Opcode.SUB_CARRY;
                     case 0xE    -> info.opcode = Opcode.SHL;
                 }
             }

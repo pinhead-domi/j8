@@ -17,8 +17,13 @@ public class Screen {
     private JPanel panel;
 
     private Keypad listener;
+    private boolean debug;
 
     public Screen(Keypad keys) {
+        this(keys, false);
+    }
+
+    public Screen(Keypad keys, boolean debug) {
 
         listener = keys;
 
@@ -26,22 +31,26 @@ public class Screen {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel = new JPanel();
 
-        frame.setSize(640, 340);
-        frame.setLayout(new BorderLayout());
-        frame.add(panel, BorderLayout.CENTER);
+        this.debug = debug;
 
-        frame.setVisible(true);
-        frame.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                listener.keyDown(e.getKeyChar());
-            }
+        if(!debug) {
+            frame.setSize(640, 340);
+            frame.setLayout(new BorderLayout());
+            frame.add(panel, BorderLayout.CENTER);
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                listener.keyUp(e.getKeyChar());
-            }
-        });
+            frame.setVisible(true);
+            frame.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    listener.keyDown(e.getKeyChar());
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    listener.keyUp(e.getKeyChar());
+                }
+            });
+        }
 
         logger.info("Screen finished initialization");
     }
@@ -82,13 +91,15 @@ public class Screen {
 
     public void update() {
 
-        Graphics2D g2d = (Graphics2D) panel.getGraphics();
+        if(!debug) {
+            Graphics2D g2d = (Graphics2D) panel.getGraphics();
 
-        for(int i=0; i<64*32; i++) {
-            int row = i / 64;
-            int col = i % 64;
-            g2d.setColor(screenBuffer[i] ? Color.RED : Color.BLACK);
-            g2d.fillRect(col*10, row*10, 10, 10);
+            for(int i=0; i<64*32; i++) {
+                int row = i / 64;
+                int col = i % 64;
+                g2d.setColor(screenBuffer[i] ? Color.RED : Color.BLACK);
+                g2d.fillRect(col*10, row*10, 10, 10);
+            }
         }
 
     }
